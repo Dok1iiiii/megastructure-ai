@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "",
-  "outputDirectory": "public",
   "headers": [
     {
       "source": "/api/(.*)",
