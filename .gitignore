@@ -1,0 +1,12 @@
+api_key.json
+node_modules/
+.DS_Store
+*.jpg
+*.jpeg
+*.png
+*.gif
+!public/images/*.svg
+test_*.js
+start-server.bat
+README.md
+README.txt

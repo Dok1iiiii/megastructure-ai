@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>巨构AI - 生图工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--gold:#c9a84c;--gold-dim:#8a7230;--gold-glow:rgba(201,168,76,.15);--text:#e8e0d0;--text-dim:#888074;--text-dimmer:#55504a;--border:#222}
+body{font-family:"Noto Sans SC","Inter",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+#star{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.kb{position:fixed;top:1rem;right:1rem;z-index:100;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all .3s}
+.kb:hover{border-color:var(--gold-dim);color:var(--gold)}
+.kb.hk{border-color:#4caf50;color:#4caf50}
+.kp{position:fixed;top:4rem;right:1rem;z-index:100;width:340px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;display:none;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.kp.o{display:block}
+.kp h3{font-size:.85rem;font-weight:500;margin-bottom:.3rem}
+.kp .sub{font-size:.7rem;color:var(--text-dimmer);margin-bottom:.8rem}
+.kp select{width:100%;padding:.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.75rem;outline:none;margin-bottom:.5rem;cursor:pointer}
+.kp select:focus{border-color:var(--gold-dim)}
+.kr{display:flex;gap:.5rem;margin-bottom:.5rem}
+.kr input{flex:1;padding:.5rem .7rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.75rem;font-family:monospace;outline:none}
+.kr input:focus{border-color:var(--gold-dim)}
+.kr button{padding:.5rem 1rem;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:8px;color:#0a0a0a;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.kr button:hover{opacity:.85}
+.ks{font-size:.7rem;color:var(--text-dimmer);min-height:1.2rem;margin-top:.3rem}
+.ks.ok{color:#4caf50}
+.ks.err{color:#e74c3c}
+.hero{position:relative;z-index:1;min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center}
+.hb{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;border:1px solid var(--gold-dim);border-radius:100px;font-size:.75rem;letter-spacing:.15em;color:var(--gold);margin-bottom:2rem;opacity:.7}
+.hero h1{font-size:clamp(2.5rem,8vw,6rem);font-weight:700;background:linear-gradient(135deg,var(--gold),#e8d48b 30%,var(--text) 70%,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1rem}
+.hs{font-size:clamp(.9rem,2vw,1.2rem);color:var(--text-dim);max-width:560px;margin:1.5rem auto 2.5rem;font-weight:300}
+.gen{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 2rem 4rem}
+.sl{text-align:center;font-size:.7rem;letter-spacing:.2em;color:var(--text-dimmer);margin-bottom:2rem}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem}
+.ta{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1.2rem;color:var(--text);font-family:inherit;font-size:.95rem;resize:vertical;min-height:100px;outline:none;margin-bottom:1.5rem}
+.ta:focus{border-color:var(--gold-dim);box-shadow:0 0 0 3px var(--gold-glow)}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.cg l{display:block;font-size:.7rem;color:var(--text-dim);margin-bottom:.4rem}
+.ps{display:flex;gap:.4rem;flex-wrap:wrap}
+.ps button{padding:.35rem .75rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:.75rem;cursor:pointer;font-family:inherit}
+.ps button:hover{border-color:var(--gold-dim);color:var(--text)}
+.ps button.a{background:var(--gold-glow);border-color:var(--gold-dim);color:var(--gold)}
+.msel{width:100%;padding:.35rem .6rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.75rem;outline:none;cursor:pointer}
+.msel:focus{border-color:var(--gold-dim)}
+.gw{text-align:center}
+.gb{padding:.9rem 2.5rem;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border:none;border-radius:12px;color:#0a0a0a;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:.6rem;transition:all .3s}
+.gb:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--gold-glow)}
+.gb:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.sp{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#0a0a0a;border-radius:50%;animation:s .8s linear infinite}
+.gb.l .sp{display:inline-block}.gb.l .bt{display:none}
+@keyframes s{to{transform:rotate(360deg)}}
+.er{text-align:center;color:#e74c3c;font-size:.85rem;min-height:1.5rem;margin-top:.5rem}
+.ra{margin-top:2rem;display:none}.ra.v{display:block}
+.ra img{width:100%;border-radius:12px;border:1px solid var(--border);cursor:pointer}
+.rp{margin-top:.75rem;font-size:.8rem;color:var(--text-dimmer)}
+.gal{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 2rem 6rem}
+.gal h2{text-align:center;font-size:1.5rem;font-weight:500;margin-bottom:.3rem;color:var(--text)}
+.gal .gsp{text-align:center;color:var(--text-dimmer);font-size:.85rem;margin-bottom:2rem}
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.gi{border-radius:10px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9;background:var(--bg3);transition:border-color .3s}
+.gi:hover{border-color:var(--gold-dim)}
+.gi img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block;cursor:pointer}
+.gi:hover img{transform:scale(1.03)}
+.ge{grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-dimmer)}
+.ft{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-dimmer);font-size:.75rem}
+.ft a{color:var(--gold-dim);text-decoration:none}
+.ts{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.5rem;color:var(--text);z-index:100;opacity:0;transition:opacity .3s;pointer-events:none}
+.ts.s{opacity:1}
+@media(max-width:640px){.cg{grid-template-columns:1fr 1fr}.gg{grid-template-columns:1fr}.kp{right:.5rem;width:calc(100vw-1rem)}}
+.lb{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;cursor:pointer}
+.lb.o{display:flex}
+.lb img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:8px;animation:zi .25s ease;transition:transform .15s ease;will-change:transform}
+.lb .lbc{position:fixed;top:1rem;right:1rem;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10000;transition:all .2s}
+.lb .lbc:hover{background:rgba(255,255,255,.2)}
+.lb .lbt{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.4);font-size:.75rem;z-index:10000;pointer-events:none}
+.lb .lbz{position:fixed;top:1.2rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:#fff;font-size:.8rem;padding:.25rem .8rem;z-index:10000;pointer-events:none;opacity:0;transition:opacity .2s}
+.lb .lbz.v{opacity:1}
+@keyframes zi{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<canvas id="star"></canvas>
+<button class="kb" id="kb" title="API Key">⚙</button>
+<div class="kp" id="kp">
+<h3>生图服务配置</h3>
+<div class="sub">选择服务商 → 输入 API Key → 确认</div>
+<select id="provSel">
+<option value="siliconflow">SiliconFlow (FLUX / SD 3.5)</option>
+<option value="openai">OpenAI (DALL-E 3)</option>
+<option value="volcengine">火山引擎 / ByteDance (Seedream)</option>
+</select>
+<div class="kr"><input id="keyIn" type="password" placeholder="sk-... API Key" /><button id="keyBtn">确认</button></div>
+<div class="kr" id="epRow" style="display:none"><input id="epIn" type="text" placeholder="自定义 Endpoint (可选)" /></div>
+<div class="ks" id="keySt">每个用户使用自己的 API Key，数据只保存在浏览器</div>
+</div>
+<section class="hero"><div class="hb">✦ AI 巨构美学生成器</div>
+<h1>巨构AI</h1>
+<p class="hs">在算法中寻找诗意 — 输入你的构想，AI 将为你生成气势辉宏的巨构美学图像</p>
+</section>
+<section class="gen"><div class="sl">— 生成器 —</div><div class="card">
+<textarea class="ta" id="promptIn" placeholder="描述你心中的巨构世界..." rows="3"></textarea>
+<div class="cg">
+<div><l>风格</l><div class="ps" id="styleC"><button class="a" data-v="cinematic">电影感</button><button data-v="concept_art">概念艺术</button><button data-v="minimalist">极简</button><button data-v="surreal">超现实</button><button data-v="ethereal">空灵</button></div></div>
+<div><l>尺度</l><div class="ps" id="scaleC"><button class="a" data-v="colossal">宏大</button><button data-v="massive">巨大</button><button data-v="intimate">细节</button></div></div>
+<div><l>氛围</l><div class="ps" id="moodC"><button class="a" data-v="mystical">神秘</button><button data-v="solemn">肃穆</button><button data-v="hopeful">希望</button><button data-v="melancholic">忧郁</button><button data-v="sublime">壮丽</button></div></div>
+<div><l>色调</l><div class="ps" id="colorC"><button class="a" data-v="warm_gold">暖金</button><button data-v="cool_blue">冷蓝</button><button data-v="monochrome">黑白</button><button data-v="purple_dusk">紫暮</button><button data-v="vibrant">霓虹</button></div></div>
+</div>
+<div class="cg">
+<div><l>生图模型</l><select class="msel" id="modelSel"></select></div>
+<div><l>分辨率</l><select class="msel" id="sizeSel"></select></div>
+</div>
+<div class="gw"><button class="gb" id="genBtn"><span class="sp"></span><span class="bt">✦ 生成巨构</span></button></div>
+<div class="er" id="errMsg"></div>
+<div class="ra" id="resArea"><img id="resImg" alt=""><div class="rp" id="revPrompt"></div></div>
+</div></section>
+<section class="gal"><h2>作品画廊</h2><p class="gsp">你本次会话生成的图像保存在本地浏览器</p>
+<div class="gg" id="galleryGrid"><div class="ge">生成后图像将在这里展示</div></div></section>
+<footer class="ft"><p>灵感来源于 Bilibili UP主 <a href="https://space.bilibili.com/273460306" target="_blank">巨构ai</a></p>
+<p>— 砼核 · 硅基文明观测员 · 在算法中寻找诗意 —</p></footer>
+<div class="ts" id="toast"></div>
+<div class="lb" id="lb"><img id="lbImg" alt=""><span class="lbc" id="lbCl">&times;</span><span class="lbz" id="lbZoom"></span><span class="lbt">滚轮缩放 · 双击还原 · 点击空白关闭 · ESC 退出</span></div>
+<script>
+(function(){var c=document.getElementById("star"),x=c.getContext("2d"),s=[];function r(){c.width=innerWidth;c.height=document.body.scrollHeight;s=[];for(var i=0;i<(c.width*c.height)/8000;i++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.2,a:Math.random()*.6+.1,sp:Math.random()*.003+.001})}function d(){x.clearRect(0,0,c.width,c.height);for(var i=0;i<s.length;i++){s[i].a+=Math.sin(Date.now()*s[i].sp)*.002;s[i].a=Math.max(.05,Math.min(.8,s[i].a));x.beginPath();x.arc(s[i].x,s[i].y,s[i].r,0,Math.PI*2);x.fillStyle="rgba(232,224,208,"+s[i].a+")";x.fill()}requestAnimationFrame(d)}addEventListener("resize",r);r();d()})();
+document.querySelectorAll(".ps").forEach(function(g){g.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){g.querySelectorAll("button").forEach(function(x){x.classList.remove("a")});b.classList.add("a")})})});
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("s");setTimeout(function(){t.classList.remove("s")},3000)}
+var lb=document.getElementById("lb"),lbImg=document.getElementById("lbImg"),lbZoom=document.getElementById("lbZoom");
+var zoomScale=1,panX=0,panY=0,isDragging=false,dragSX=0,dragSY=0,dragPX=0,dragPY=0;
+function applyTransform(){lbImg.style.transform="translate("+panX+"px,"+panY+"px) scale("+zoomScale+")";lbZoom.textContent=Math.round(zoomScale*100)+"%";lbZoom.classList.toggle("v",zoomScale!==1);lbImg.style.cursor=zoomScale>1?(isDragging?"grabbing":"grab"):"pointer"}
+function resetView(){zoomScale=1;panX=0;panY=0;applyTransform()}
+function openLightbox(src){lbImg.src=src;resetView();lb.classList.add("o");document.body.style.overflow="hidden"}
+function closeLightbox(){lb.classList.remove("o");document.body.style.overflow=""}
+lb.addEventListener("click",function(e){if(e.target!==lbImg)closeLightbox()});
+lb.addEventListener("wheel",function(e){e.preventDefault();var d=e.deltaY>0?-0.15:0.15;zoomScale=Math.min(5,Math.max(0.3,zoomScale+d));if(zoomScale<=1){panX=0;panY=0}applyTransform()});
+lbImg.addEventListener("mousedown",function(e){if(zoomScale<=1)return;e.preventDefault();isDragging=true;dragSX=e.clientX;dragSY=e.clientY;dragPX=panX;dragPY=panY;applyTransform()});
+window.addEventListener("mousemove",function(e){if(!isDragging)return;panX=dragPX+(e.clientX-dragSX);panY=dragPY+(e.clientY-dragSY);applyTransform()});
+window.addEventListener("mouseup",function(){if(isDragging){isDragging=false;applyTransform()}});
+lbImg.addEventListener("dblclick",function(e){e.stopPropagation();resetView()});
+document.getElementById("lbCl").addEventListener("click",function(e){e.stopPropagation();closeLightbox()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeLightbox()});
+var PROVIDERS={
+openai:{name:"OpenAI",models:[{id:"dall-e-3",sizes:["1024x1024","1792x1024","1024x1792"]}],def:"dall-e-3",defSize:"1792x1024"},
+volcengine:{name:"\u706b\u5c71\u5f15\u64ce(ByteDance)",models:[{id:"doubao-seedream-4-5-251128",sizes:["2K","4K","2560x1440","2048x2048"]},{id:"doubao-seedream-5-0-260128",sizes:["2K","4K","2560x1440","2048x2048"]},{id:"doubao-seedream-4-0-250828",sizes:["1K","2K","4K","2048x2048","2560x1440"]},{id:"doubao-seedream-3.0-t2i",sizes:["1024x1024","1280x720","1920x1080"]}],def:"doubao-seedream-4-5-251128",defSize:"2K"},
+siliconflow:{name:"SiliconFlow",models:[{id:"black-forest-labs/FLUX.1-dev",sizes:["512x512","768x768","1024x1024","1280x720","1920x1080","3840x2160"]},{id:"black-forest-labs/FLUX.1-schnell",sizes:["512x512","768x768","1024x1024","1280x720","1920x1080","3840x2160"]},{id:"stabilityai/stable-diffusion-3-5-large",sizes:["1024x1024","1280x720","1920x1080","3840x2160"]}],def:"black-forest-labs/FLUX.1-dev",defSize:"1920x1080"}
+};
+function updateModels(pid){var p=PROVIDERS[pid]||PROVIDERS.openai,ms=document.getElementById("modelSel"),ss=document.getElementById("sizeSel");ms.innerHTML="";ss.innerHTML="";for(var i=0;i<p.models.length;i++){var m=p.models[i],o=document.createElement("option");o.value=m.id;o.textContent=m.id;if(m.id===p.def)o.selected=true;ms.appendChild(o)}updateSizes(pid,ms.value)}
+function updateSizes(pid,mid){var p=PROVIDERS[pid]||PROVIDERS.openai,ss=document.getElementById("sizeSel");ss.innerHTML="";var m=null;for(var i=0;i<p.models.length;i++)if(p.models[i].id===mid){m=p.models[i];break}if(!m&&p.models.length)m=p.models[0];if(!m)return;for(var i=0;i<m.sizes.length;i++){var o=document.createElement("option");o.value=m.sizes[i];var lb=m.sizes[i];if(m.sizes[i]==="1920x1080")lb+=" (FHD)";if(m.sizes[i]==="3840x2160")lb+=" (4K)";if(m.sizes[i]==="1280x720")lb+=" (HD)";o.textContent=lb;if(m.sizes[i]===p.defSize)o.selected=true;ss.appendChild(o)}}
+document.getElementById("modelSel").addEventListener("change",function(){updateSizes(document.getElementById("provSel").value,this.value)});
+var kb=document.getElementById("kb"),kp=document.getElementById("kp"),provSel=document.getElementById("provSel");
+var keyIn=document.getElementById("keyIn"),keyBtn=document.getElementById("keyBtn"),keySt=document.getElementById("keySt");
+var epIn=document.getElementById("epIn"),epRow=document.getElementById("epRow");
+kb.onclick=function(){kp.classList.toggle("o")};
+document.addEventListener("click",function(e){if(!kp.contains(e.target)&&e.target!==kb)kp.classList.remove("o")});
+provSel.onchange=function(){epRow.style.display=this.value==="openai"?"none":"flex";updateModels(this.value)};
+keyBtn.onclick=function(){var k=keyIn.value.trim(),p=provSel.value;if(!k||k.length<8){keySt.textContent="Key\u683c\u5f0f\u65e0\u6548\uff08\u81f3\u5c118\u4e2a\u5b57\u7b26\uff09";keySt.className="ks err";return}if(p==="openai"&&!k.startsWith("sk-")){keySt.textContent="OpenAI Key \u5fc5\u987b\u4ee5 sk- \u5f00\u5934";keySt.className="ks err";return}var e=epIn.value.trim();localStorage.setItem("ms_key",k);localStorage.setItem("ms_prov",p);if(e)localStorage.setItem("ms_ep",e);else localStorage.removeItem("ms_ep");keySt.textContent="\u5df2\u4fdd\u5b58 "+PROVIDERS[p].name+" Key";keySt.className="ks ok";kb.classList.add("hk");updateModels(p);setTimeout(function(){kp.classList.remove("o")},1200)};
+keyIn.addEventListener("keydown",function(e){if(e.key==="Enter")keyBtn.click()});
+var sk=localStorage.getItem("ms_key"),sp=localStorage.getItem("ms_prov"),se=localStorage.getItem("ms_ep");
+if(sk){keyIn.value=sk;if(sp){provSel.value=sp;epRow.style.display=sp==="openai"?"none":"flex";if(se)epIn.value=se}kb.classList.add("hk");keySt.textContent="Key \u5df2\u4fdd\u5b58";keySt.className="ks ok";updateModels(sp)}else{updateModels("siliconflow")}
+var genBtn=document.getElementById("genBtn"),promptIn=document.getElementById("promptIn"),errMsg=document.getElementById("errMsg");
+var resArea=document.getElementById("resArea"),resImg=document.getElementById("resImg"),revPrompt=document.getElementById("revPrompt");
+resImg.addEventListener("click",function(){if(this.src)openLightbox(this.src)});
+function getActive(id){var a=document.querySelector("#"+id+" .a");return a?a.getAttribute("data-v"):null}
+genBtn.onclick=function(){var p=promptIn.value.trim();if(!p){errMsg.textContent="\u8bf7\u8f93\u5165\u63cf\u8ff0";return}var k=localStorage.getItem("ms_key");if(!k){errMsg.textContent="\u8bf7\u5148\u70b9\u51fb\u53f3\u4e0a\u89d2\u9f7f\u8f6e\u8bbe\u7f6e API Key";return}
+errMsg.textContent="";genBtn.classList.add("l");genBtn.disabled=true;resArea.classList.remove("v");
+var prov=localStorage.getItem("ms_prov")||"openai",ep=localStorage.getItem("ms_ep")||"";
+var m=document.getElementById("modelSel").value,s=document.getElementById("sizeSel").value;
+var payload={prompt:p,style:getActive("styleC"),scale:getActive("scaleC"),mood:getActive("moodC"),colorPalette:getActive("colorC"),model:m,size:s,apiKey:k,provider:prov};if(ep)payload.endpoint=ep;
+fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json()}).then(function(d){if(d.error){errMsg.textContent=d.message||d.error;return}
+resImg.src=d.imageData||d.imageUrl||"";resArea.classList.add("v");if(d.revisedPrompt)revPrompt.innerHTML="<strong>AI\u4f18\u5316\u63d0\u793a\u8bcd\uff1a</strong>"+d.revisedPrompt;toast("\u5de8\u6784\u56fe\u50cf\u751f\u6210\u5b8c\u6210\uff01");addToGallery(d)}).catch(function(e){errMsg.textContent="\u751f\u6210\u5931\u8d25:"+e.message}).finally(function(){genBtn.classList.remove("l");genBtn.disabled=false})};
+function addToGallery(d){if(d.imageData){saveToGallery(d.imageData);return;}if(d.imageUrl){fetch(d.imageUrl).then(function(r){return r.blob()}).then(function(b){var fr=new FileReader();fr.onload=function(){saveToGallery(fr.result)};fr.readAsDataURL(b)}).catch(function(){})}}
+function saveToGallery(imgData){if(!imgData)return;var g=JSON.parse(localStorage.getItem("ms_gallery")||"[]");g.unshift({img:imgData,t:Date.now()});if(g.length>12)g.length=12;localStorage.setItem("ms_gallery",JSON.stringify(g));renderGallery()}
+function renderGallery(){var g=JSON.parse(localStorage.getItem("ms_gallery")||"[]"),grid=document.getElementById("galleryGrid");if(!g.length){grid.innerHTML="<div class=\"ge\">\u751f\u6210\u540e\u56fe\u50cf\u5c06\u5728\u8fd9\u91cc\u5c55\u793a</div>";return}grid.innerHTML=g.map(function(x){return"<div class=\"gi\"><img src=\""+x.img+"\" loading=\"lazy\"></div>"}).join("")}
+renderGallery();
+var galleryGrid=document.getElementById("galleryGrid");
+galleryGrid.addEventListener("click",function(e){if(e.target.tagName==="IMG")openLightbox(e.target.src)});
+promptIn.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();genBtn.click()}});
+</script>
+</body>
+</html>

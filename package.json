@@ -1,0 +1,9 @@
+{
+  "name": "megastructure-ai-site",
+  "version": "1.0.0",
+  "description": "巨构美学 AI 生成器",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {}
+}

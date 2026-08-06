@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+      <defs>
+        <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1a0a05"/>
+          <stop offset="30%" stop-color="#3a1a05"/>
+          <stop offset="60%" stop-color="#6a3510"/>
+          <stop offset="100%" stop-color="#c9a84c"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="50%" cy="85%" r="30%">
+          <stop offset="0%" stop-color="#ffdd77" stop-opacity="0.8"/>
+          <stop offset="50%" stop-color="#c97733" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#c97733" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="675" fill="url(#sky3)"/>
+      <circle cx="600" cy="574" r="200" fill="url(#sun)"/>
+      <circle cx="600" cy="574" r="60" fill="#fff8e0" opacity="0.8"/>
+      <rect x="50" y="400" width="60" height="275" fill="#0d0805" opacity="0.9"/>
+      <rect x="130" y="350" width="40" height="325" fill="#0d0805" opacity="0.85"/>
+      <rect x="900" y="390" width="55" height="285" fill="#0d0805" opacity="0.9"/>
+      <rect x="1030" y="410" width="60" height="265" fill="#0d0805" opacity="0.9"/>
+      <rect x="420" y="320" width="80" height="354" fill="#0d0805" opacity="0.85"/>
+      <polygon points="460,280 500,320 460,320" fill="#0d0805" opacity="0.8"/>
+      <polygon points="500,280 540,320 500,320" fill="#0d0805" opacity="0.8"/>
+      <line x1="350" y1="450" x2="850" y2="450" stroke="#0d0805" stroke-width="3" opacity="0.7"/>
+      <rect x="0" y="600" width="1200" height="75" fill="#0d0805" opacity="0.95"/>
+    </svg>

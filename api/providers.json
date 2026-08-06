@@ -1,0 +1,101 @@
+{
+  "openai": {
+    "name": "OpenAI",
+    "baseUrl": "https://api.openai.com/v1",
+    "models": [
+      {
+        "id": "dall-e-3",
+        "sizes": [
+          "1024x1024",
+          "1792x1024",
+          "1024x1792"
+        ]
+      }
+    ],
+    "def": "dall-e-3",
+    "defSize": "1792x1024"
+  },
+  "volcengine": {
+    "name": "火山引擎 (ByteDance)",
+    "baseUrl": "https://ark.cn-beijing.volces.com/api/v3",
+    "models": [
+      {
+        "id": "doubao-seedream-4-5-251128",
+        "sizes": [
+          "2K",
+          "4K",
+          "2560x1440",
+          "2048x2048"
+        ]
+      },
+      {
+        "id": "doubao-seedream-5-0-260128",
+        "sizes": [
+          "2K",
+          "4K",
+          "2560x1440",
+          "2048x2048"
+        ]
+      },
+      {
+        "id": "doubao-seedream-4-0-250828",
+        "sizes": [
+          "1K",
+          "2K",
+          "4K",
+          "2048x2048",
+          "2560x1440"
+        ]
+      },
+      {
+        "id": "doubao-seedream-3.0-t2i",
+        "sizes": [
+          "1024x1024",
+          "1280x720",
+          "1920x1080"
+        ]
+      }
+    ],
+    "def": "doubao-seedream-4-5-251128",
+    "defSize": "2K"
+  },
+  "siliconflow": {
+    "name": "SiliconFlow",
+    "baseUrl": "https://api.siliconflow.cn/v1",
+    "models": [
+      {
+        "id": "black-forest-labs/FLUX.1-dev",
+        "sizes": [
+          "512x512",
+          "768x768",
+          "1024x1024",
+          "1280x720",
+          "1920x1080",
+          "3840x2160"
+        ]
+      },
+      {
+        "id": "black-forest-labs/FLUX.1-schnell",
+        "sizes": [
+          "512x512",
+          "768x768",
+          "1024x1024",
+          "1280x720",
+          "1920x1080",
+          "3840x2160"
+        ]
+      },
+      {
+        "id": "stabilityai/stable-diffusion-3-5-large",
+        "sizes": [
+          "1024x1024",
+          "1280x720",
+          "1920x1080",
+          "3840x2160"
+        ]
+      }
+    ],
+    "def": "black-forest-labs/FLUX.1-dev",
+    "defSize": "1920x1080"
+  }
+}

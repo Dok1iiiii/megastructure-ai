@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675">
+      <defs>
+        <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#050510"/>
+          <stop offset="40%" stop-color="#0a0a20"/>
+          <stop offset="70%" stop-color="#151030"/>
+          <stop offset="100%" stop-color="#201040"/>
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="675" fill="url(#sky4)"/>
+      <path d="M0,500 Q100,350 200,420 Q300,380 400,450 Q500,340 600,400 Q700,360 800,450 Q900,370 1000,420 Q1100,380 1200,500 L1200,675 L0,675 Z" fill="#0a0820" opacity="0.6"/>
+      <rect x="300" y="200" width="80" height="300" fill="#151035" opacity="0.7"/>
+      <rect x="800" y="180" width="70" height="320" fill="#151035" opacity="0.7"/>
+      <polygon points="560,350 600,50 640,350" fill="#1a1040" opacity="0.7"/>
+      <polygon points="580,350 600,120 620,350" fill="#2a2060" opacity="0.4"/>
+      <ellipse cx="600" cy="200" rx="100" ry="20" fill="none" stroke="#8844cc" stroke-width="0.8" opacity="0.2"/>
+      <rect x="0" y="600" width="1200" height="75" fill="#080518" opacity="0.9"/>
+    </svg>
