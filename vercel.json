@@ -1,13 +1,4 @@
 {
-  "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "public/**", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/", "dest": "/public/index.html" },
-    { "src": "/(.*)", "dest": "/public/$1" }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",
@@ -17,5 +8,11 @@
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/generate.js": {
+      "memory": 512,
+      "maxDuration": 60
+    }
+  }
 }
