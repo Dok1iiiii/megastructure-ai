@@ -162,17 +162,35 @@ resImg.addEventListener("click",function(){if(this.src)openLightbox(this.src)});
 function getActive(id){var a=document.querySelector("#"+id+" .a");return a?a.getAttribute("data-v"):null}
 genBtn.onclick=function(){var p=promptIn.value.trim();if(!p){errMsg.textContent="\u8bf7\u8f93\u5165\u63cf\u8ff0";return}var k=localStorage.getItem("ms_key");if(!k){errMsg.textContent="\u8bf7\u5148\u70b9\u51fb\u53f3\u4e0a\u89d2\u9f7f\u8f6e\u8bbe\u7f6e API Key";return}
 errMsg.textContent="";genBtn.classList.add("l");genBtn.disabled=true;resArea.classList.remove("v");
-var prov=localStorage.getItem("ms_prov")||"openai",ep=localStorage.getItem("ms_ep")||"";
+var prov=localStorage.getItem("ms_prov")||"siliconflow",ep=localStorage.getItem("ms_ep")||"";
 var m=document.getElementById("modelSel").value,s=document.getElementById("sizeSel").value;
 var payload={prompt:p,style:getActive("styleC"),scale:getActive("scaleC"),mood:getActive("moodC"),colorPalette:getActive("colorC"),model:m,size:s,apiKey:k,provider:prov};if(ep)payload.endpoint=ep;
-fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){return r.json()}).then(function(d){if(d.error){errMsg.textContent=d.message||d.error;return}
+apiGenerate(payload).then(function(d){if(d.error){errMsg.textContent=d.message||d.error;return}
 resImg.src=d.imageData||d.imageUrl||"";resArea.classList.add("v");if(d.revisedPrompt)revPrompt.innerHTML="<strong>AI\u4f18\u5316\u63d0\u793a\u8bcd\uff1a</strong>"+d.revisedPrompt;toast("\u5de8\u6784\u56fe\u50cf\u751f\u6210\u5b8c\u6210\uff01");addToGallery(d)}).catch(function(e){errMsg.textContent="\u751f\u6210\u5931\u8d25:"+e.message}).finally(function(){genBtn.classList.remove("l");genBtn.disabled=false})};
 function addToGallery(d){if(d.imageData){saveToGallery(d.imageData);return;}if(d.imageUrl){fetch(d.imageUrl).then(function(r){return r.blob()}).then(function(b){var fr=new FileReader();fr.onload=function(){saveToGallery(fr.result)};fr.readAsDataURL(b)}).catch(function(){})}}
-function saveToGallery(imgData){if(!imgData)return;var g=JSON.parse(localStorage.getItem("ms_gallery")||"[]");g.unshift({img:imgData,t:Date.now()});if(g.length>12)g.length=12;localStorage.setItem("ms_gallery",JSON.stringify(g));renderGallery()}
+function saveToGallery(imgData){if(!imgData)return;try{var g=JSON.parse(localStorage.getItem("ms_gallery")||"[]");g.unshift({img:imgData,t:Date.now()});if(g.length>12)g.length=12;localStorage.setItem("ms_gallery",JSON.stringify(g))}catch(e){}renderGallery()}
 function renderGallery(){var g=JSON.parse(localStorage.getItem("ms_gallery")||"[]"),grid=document.getElementById("galleryGrid");if(!g.length){grid.innerHTML="<div class=\"ge\">\u751f\u6210\u540e\u56fe\u50cf\u5c06\u5728\u8fd9\u91cc\u5c55\u793a</div>";return}grid.innerHTML=g.map(function(x){return"<div class=\"gi\"><img src=\""+x.img+"\" loading=\"lazy\"></div>"}).join("")}
 renderGallery();
 var galleryGrid=document.getElementById("galleryGrid");
 galleryGrid.addEventListener("click",function(e){if(e.target.tagName==="IMG")openLightbox(e.target.src)});
+var BASES={openai:"https://api.openai.com/v1",volcengine:"https://ark.cn-beijing.volces.com/api/v3",siliconflow:"https://api.siliconflow.cn/v1"};
+function msBuildPrompt(up,style,scale,mood,cp){
+var sm={cinematic:"cinematic, film still, ultra-detailed",concept_art:"concept art, matte painting",minimalist:"minimalist, clean lines",surreal:"surreal, dreamlike, impossible architecture",ethereal:"ethereal, glowing, luminous"};
+var scm={colossal:"colossal, monumental, tiny figures for scale",massive:"massive structures, breathtaking scope",intimate:"intimate, architectural details, close perspective"};
+var mm={mystical:"mystical, golden hour, mist, sacred geometry",solemn:"solemn, reverent, dramatic shadows",hopeful:"hopeful, sunrise, warm light",melancholic:"melancholic, twilight, deep blues",sublime:"sublime, awe-inspiring, epic"};
+var cm={warm_gold:"warm gold, amber, rich ochres",cool_blue:"cool blue, teal, azure",monochrome:"monochrome, black and white",purple_dusk:"purple, violet dusk, deep indigo",vibrant:"vibrant neon, electric blues"};
+return "Megastructure aesthetic, sci-fi monumental architecture, "+(sm[style]||sm.cinematic)+", "+(scm[scale]||scm.colossal)+", "+(mm[mood]||mm.mystical)+", "+(cm[cp]||cm.warm_gold)+". "+up+". Brutalist concrete, steel, silicon civilization, massive geometric forms, cosmic scale, ultra-detailed, photorealistic, dramatic lighting, atmospheric perspective."}
+function msPick(d){var it=(d.data&&d.data[0])||(d.images&&d.images[0])||null;if(!it)return null;return{url:it.url||it.image_url||it.uri,b64:it.b64_json||it.base64||it.image_base64,mime:it.content_type||"image/png",revised:it.revised_prompt||""}}
+function apiGenerate(pl){
+var base=(pl.endpoint||BASES[pl.provider]||BASES.siliconflow).replace(/\/+$/,"");
+var body={model:pl.model,prompt:msBuildPrompt(pl.prompt,pl.style,pl.scale,pl.mood,pl.colorPalette),size:pl.size};
+if(pl.provider==="openai"){body.n=1;body.quality="hd"}
+if(pl.provider==="volcengine"){body.watermark=false}
+return fetch(base+"/images/generations",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+pl.apiKey},body:JSON.stringify(body)}).then(function(r){return r.text().then(function(t){return{ok:r.ok,status:r.status,txt:t}})}).then(function(res){
+var d;try{d=JSON.parse(res.txt)}catch(e){return{error:"\u63a5\u53e3\u8fd4\u56de\u65e0\u6cd5\u89e3\u6790\uff08HTTP "+res.status+"\uff09: "+res.txt.slice(0,150)}}
+if(!res.ok||d.error){return{error:d.error?(d.error.message||JSON.stringify(d.error)):("HTTP "+res.status)}}
+var it=msPick(d);if(!it||(!it.b64&&!it.url))return{error:"\u63a5\u53e3\u672a\u8fd4\u56de\u56fe\u7247"};
+return{imageData:it.b64?("data:"+it.mime+";base64,"+it.b64):"",imageUrl:it.b64?"":it.url,revisedPrompt:it.revised}})}
 promptIn.addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();genBtn.click()}});
 </script>
 </body>
